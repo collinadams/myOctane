@@ -1,39 +1,43 @@
 import { inject as service } from '@ember/service';
-import Component from '@ember/component';
+import { action } from '@ember/object';
+import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 
-export default Component.extend({
-  store: service('store'),
+export default class BookForm extends Component {
+  @service store
 
-  didReceiveAttrs() {
-    this._super(...arguments);
+  @tracked title
+  @tracked isbn
+  @tracked publishDate
+  @tracked author
 
-    this.setProperties({
-      title: this.get('book.title'),
-      isbn: this.get('book.isbn'),
-      publishDate: this.get('book.publishDate'),
-      author: this.get('book.author'),
-    });
-  },
-
-  actions: {
-    changeAuthor(id) {
-      let author = this.get('authors').find(a => a.id == id);
-
-      this.set('author', author);
-    },
-
-    searchAuthor(query) {
-
-      return this.get('store').query('author', { filter: { query }});
-    },
-
-    submitChanges() {
-      this.onsubmit({
-        title: this.title,
-        isbn: this.isbn,
-        publishDate: this.publishDate,
-        author: this.author,
-      });
-    }
+  constructor() {
+    super(...arguments);
+    this.title = this.args.book.title
+    this.isbn = this.args.book.isbn
+    this.publishDate = this.args.book.publishDate
+    this.author = this.args.book.author
   }
-});
+
+  @action
+  changeAuthor(id) {
+    let author = this.args.authors.find(a => a.id == id);
+
+    this.author = author;
+  }
+
+  @action
+  searchAuthor(query) {
+    return this.store.query('author', { filter: { query }});
+  }
+
+  @action
+  submitChanges() {
+    this.args.onsubmit({
+      title: this.title,
+      isbn: this.isbn,
+      publishDate: this.publishDate,
+      author: this.author,
+    });
+  }
+};
